@@ -1,0 +1,11 @@
+## Database Recommendation
+
+For a healthcare patient management system, I would recommend **MySQL** (or another ACID-compliant RDBMS) as the primary database, and here is why.
+
+Healthcare data is among the most sensitive and regulated data in existence. Patient records must be accurate, consistent, and auditable at all times. MySQL's ACID guarantees — Atomicity, Consistency, Isolation, and Durability — are non-negotiable in this context. Consider a scenario where a doctor updates a patient's medication dosage and simultaneously a billing system records the prescription charge. If the system crashes mid-transaction, ACID guarantees that either both changes are committed or neither is — there is no partial state. With a BASE (Basically Available, Soft-state, Eventual consistency) system like MongoDB in its default configuration, you risk a scenario where the dosage is updated but the billing record is not, or vice versa. In healthcare, such inconsistencies can cause patient harm.
+
+The CAP theorem states that a distributed system can guarantee at most two of three properties: Consistency, Availability, and Partition tolerance. Healthcare prioritizes Consistency over Availability. If the database is temporarily unavailable, that is acceptable — a doctor waits a few seconds. But if a patient's allergy record is inconsistent across nodes, that is a patient safety crisis. MySQL's design prioritizes CP (Consistency + Partition tolerance), aligning perfectly with healthcare requirements.
+
+Patient data also has a well-defined, stable schema: diagnoses, prescriptions, lab results, and appointments all have predictable structures. There is no need for MongoDB's schema flexibility here, and that flexibility introduces risk — a missing `blood_type` field would not be caught at the database level.
+
+**Would the answer change with a fraud detection module?** Yes, partially. Fraud detection requires analysing large volumes of semi-structured behavioural data — login patterns, access logs, timing anomalies — which may vary in structure. For this specific module, a document store or time-series database would be a better fit, and a hybrid architecture (MySQL for core patient records + MongoDB or a graph database for fraud pattern analysis) would be appropriate. However, the core patient management system should remain on MySQL.
